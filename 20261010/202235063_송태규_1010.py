@@ -59,8 +59,8 @@ print("")
 
 # TODO: 전체 점수 기준, 최고 점수와 과목 그리고 해당 학생 계산 (modulo % 사용 추천)
 overall_max_score = all_scores.max() # 100 is the max score of all_scores
-overall_max_idx = all_scores.argmax() % 3 # is score 100 in 국어? 수학? 영어?  7 % 3 == 1
-overall_max_subject = subjects[overall_max_idx] # 1 is 수학 (subjects[1]==수학)
-overall_max_student = student_names[[raw_scores[:, 1].argmax()][0]] # using indexing we can find 맹구 has the highest score in 수학
+overall_max_idx = all_scores.argmax()  # where is the 100's index?
+overall_max_subject = subjects[overall_max_idx % 3] # 1 is 수학 (subjects[7 % 3 == 1]==수학)
+overall_max_student = student_names[[raw_scores[:, overall_max_idx % 3].argmax()][0]] # argmax can find 2D index and [0] can find name 
 # 예상 출력: "6. 단일 과목 최고 점수: xx점 (과목: XX, 학생: XX)"
 print(f"6. 단일 과목 최고 점수: {overall_max_score}점 (과목: {overall_max_subject}, 학생: {overall_max_student})")
