@@ -2,7 +2,7 @@
 
 '202235063_송태규_1010.py' file is about numpy exercise code.
 
-## Installation
+## Installation (Dependencies)
 
 You can install numpy with:
 
