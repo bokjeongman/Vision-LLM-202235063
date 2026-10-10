@@ -1,0 +1,10 @@
+{
+    "name": "맹구",
+    "age": 21,
+    "major": "컴퓨터공학",
+    "gpa": 3.8,
+    "languages": [
+        "Python",
+        "C++"
+    ]
+}
