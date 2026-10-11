@@ -1,5 +1,20 @@
 import numpy as np
 
+np_arr = np.array([1, 2, 3, 4, 5])
+
+# TODO: NumPy 연산 함수를 사용하여 배열을 정규화
+
+np_arr_normalized = (np_arr-np_arr.mean()) / np_arr.std()
+print(np_arr_normalized)
+
+# TODO: NumPy 연산 함수를 사용하여 배열을 0.0 ~ 1.0 범위의 float32 배열로 변환
+# TODO: 최종 배열의 최솟값 = 0.0, 최종 배열의 최댓값 = 1.0
+
+np_arr_final = ((np_arr_normalized - np_arr_normalized.min()) / (np_arr_normalized.max() - np_arr_normalized.min())).astype(np.float32)
+print(np_arr_final)
+print(np_arr_final.dtype)
+
+
 raw_students = [
     "zg0505_짱구",
     "cs0822_철수",
