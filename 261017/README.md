@@ -39,7 +39,7 @@ python 202235063_송태규_1017.py
 The enhanced mask contains a lot of white noise, such as a horizontal band above the ball, thin vertical lines on the right, and small fragments below.
 I applied each of the 4 operations (Erosion, Dilation, Opening, Closing) 3 times with the same kernel and compared the results.
 
-![Comparison of 4 morphological operations](image.png)
+![Comparison of 4 morphological operations](comparison_4_morphological_operations.png)
 
 | Operation | Result |
 |---|---|
@@ -53,7 +53,7 @@ Opening is Erosion followed by Dilation, so it removes the noise first and then 
 
 ### Number of Opening iterations
 
-![Comparison of Opening iterations](image-2.png)
+![Comparison of Opening iterations](CMP_Opening_iter.png)
 
 - 1 time: Several small noise dots remained above the ball.
 - 2 times: Most dots were removed, but a small bump remained on top of the ball.
@@ -65,7 +65,7 @@ So I chose 3 iterations.
 
 I also tried applying Closing 1~3 times after Opening 3 times to fill gaps on the ball boundary.
 
-![Closing iterations after Opening 3 times](image-1.png)
+![Closing iterations after Opening 3 times](Add_Closing_after_Opening.png)
 
 There were no holes inside the ball after Opening, so Closing made almost no difference. I skipped it as an unnecessary operation.
 
