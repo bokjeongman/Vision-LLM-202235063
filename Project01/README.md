@@ -56,6 +56,7 @@ python handCalculator.py
 | 오른손 | 5 | 6 | 7 | 8 | 9 |
 
 ![숫자 제스처](images/gesture_digits.png)
+
 *왼손(0~4), 오른손(5~9)*
 
 ### 2. 연산자 입력
@@ -68,6 +69,7 @@ python handCalculator.py
 | 오른손 엄지+검지+중지 | / |
 
 ![연산자 제스처](images/gesture_operators.png)
+
 *왼손: + / *, 오른손: - /*
 
 ### 3. 입력 규칙
@@ -104,6 +106,7 @@ python handCalculator.py
 16. 포스트잇을 숨기면 초기화
 
 ![최종 결과](images/result.png)
+
 *결과 모드 화면. 곱셈과 나눗셈이 먼저 계산되어 `2*7/2 = 7`, `7+4 = 11`이 됨. 포스트잇 위에 수식과 결과가 표시되고, 좌측 상단에는 현재 모드와 입력된 수식이 표시됨*
 
 ## 동작 원리
@@ -135,6 +138,7 @@ python handCalculator.py
 #### LAB 색 범위로 마스크 생성
 
 ![원본과 LAB 마스크](images/lab_lower_upper_detection.png)
+
 *노란 포스트잇만 흰색으로 분리됨. 손가락이나 배경의 잔여 노이즈가 일부 남음*
 
 #### 모폴로지 연산 비교
