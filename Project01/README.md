@@ -21,7 +21,7 @@ pip install opencv-python numpy mediapipe
 ## 폴더 구조
 
 ```
-<날짜 폴더>/
+Project01/
 ├── handCalculator.py
 ├── README.md
 ├── images/
