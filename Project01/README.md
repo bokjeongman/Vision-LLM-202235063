@@ -57,8 +57,6 @@ python handCalculator.py
 
 ![숫자 제스처](images/gesture_digits.png)
 
-*왼손(0~4), 오른손(5~9)*
-
 ### 2. 연산자 입력
 
 | 제스처 | 연산자 |
