@@ -70,8 +70,6 @@ python handCalculator.py
 
 ![연산자 제스처](images/gesture_operators.png)
 
-*왼손: + / *, 오른손: - /*
-
 ### 3. 입력 규칙
 
 - 제스처를 **1초(`HOLD_TIME`) 이상 유지**해야 입력됩니다. 유지 시간은 화면에 표시됩니다.
