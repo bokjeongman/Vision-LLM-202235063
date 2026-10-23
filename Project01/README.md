@@ -78,7 +78,7 @@ python handCalculator.py
 ### 4. 결과 확인
 
 1. 노란 포스트잇을 카메라 앞에 보이면 약 10프레임(`SHOW_FRAMES`) 뒤 결과 모드로 바뀝니다.
-2. 포스트잇 위에 수식과 결과가 두 줄로 표시됩니다. (예: `3+7` / `= 10`)
+2. 포스트잇 위에 수식과 결과가 두 줄로 표시됩니다. (예: `2*7/2+4` / `= 11`)
 3. 결과 모드에서는 손가락 입력을 무시합니다.
 4. 포스트잇이 약 30프레임(`HIDE_FRAMES`, 약 1초) 이상 보이지 않으면 수식이 초기화되고 입력 모드로 돌아갑니다.
 
@@ -140,11 +140,13 @@ python handCalculator.py
 #### 모폴로지 연산 비교
 
 ![모폴로지 비교](images/CMP_morphology.png)
-*Opening(blobs: 1)만 노이즈를 제거하면서 포스트잇 면적(64402)을 거의 유지함. Erosion은 면적이 줄고, Dilation과 Closing은 노이즈가 오히려 늘어남*
+
+*Opening(blobs: 1)만 노이즈를 제거하면서 포스트잇 면적(64402)을 원본(64715)에 가깝게 유지함. Erosion은 포스트잇 면적이 줄고(55999), Dilation은 면적이 부풀며 노이즈 점이 커지고(73041), Closing은 노이즈 조각이 그대로 남음(blobs: 54)*
 
 #### Opening 반복 횟수 비교
 
 ![Opening 반복 횟수 비교](images/CMP_opening_count.png)
+
 *1회는 노이즈가 남고(blobs: 6), 2~3회에서 포스트잇 하나만 남음(blobs: 1). 4회는 다시 노이즈 조각이 생겨(blobs: 4) 3회를 사용*
 
 ### Kalman Filter 추적
