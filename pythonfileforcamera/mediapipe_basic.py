@@ -2,6 +2,7 @@ import cv2
 import mediapipe as mp
 from mediapipe.tasks import python
 from mediapipe.tasks.python import vision
+import platform # use for my notebook and NVIDIA Jetson Nano
 
 # This five lines are the base line code
 base_option = python.BaseOptions(model_asset_path="src/models/MediaPipe/hand_landmarker.task")  # 모델 경로 지정하는 옵션
@@ -19,7 +20,13 @@ pipeline = (
     "appsink drop=true max-buffers=1 sync=false"
 )
 
-cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+if platform.system() == "Windows": # check OS for cv2.VideoCapture() function
+    cap = cv2.VideoCapture(0) # use for my notebook
+else:
+    cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER) # use again for NVIDIA Jetson Nano
+
+if not cap.isOpened():
+    print("카메라를 열 수 없습니다.")
 
 while True:
     ret, frame = cap.read()

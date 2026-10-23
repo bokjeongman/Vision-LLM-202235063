@@ -2,6 +2,7 @@
 import cv2
 import numpy as np
 import matplotlib.pyplot as plt
+import platform # use for my notebook and NVIDIA Jetson Nano
 
 pipeline = (
     "v4l2src device=/dev/video0 ! "
@@ -12,13 +13,22 @@ pipeline = (
     "appsink drop=true max-buffers=1 sync=false"
 )
 
-cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER)
+if platform.system() == "Windows": # check OS for cv2.VideoCapture() function
+    cap = cv2.VideoCapture(0) # use for my notebook
+else:
+    cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER) # use again for NVIDIA Jetson Nano
+
+if not cap.isOpened():
+    print("카메라를 열 수 없습니다.")
+
 
 while True:
     ret, frame = cap.read()
     # 초록 LAB lower/upper range
-    green_lower = np.array([30, 60, 90], dtype=np.uint8) # lower bound for basketball in LAB color space
-    green_upper = np.array([230, 115, 180], dtype=np.uint8) # upper bound for basketball in LAB color space
+    green_lower = np.array([200, 115, 115], dtype=np.uint8) # lower bound for basketball in LAB color space
+    green_upper = np.array([255, 141, 141], dtype=np.uint8) # upper bound for basketball in LAB color space
+    # green_lower = np.array([30, 60, 90], dtype=np.uint8) # lower bound for basketball in LAB color space
+    # green_upper = np.array([230, 115, 180], dtype=np.uint8) # upper bound for basketball in LAB color space
 
     # TODO: 각 프레임 이미지를 전처리
     # TODO: Color Segmentation으로 Binary Mask 생성
@@ -31,17 +41,17 @@ while True:
 
     # Convert BGR to LAB
     ipr_lab = cv2.cvtColor(image_per_frame, cv2.COLOR_RGB2LAB)
-    '''
-    # Split each channel
-    l, a, b = cv2.split(ipr_lab)
+    # '''
+    # # Split each channel
+    # l, a, b = cv2.split(ipr_lab)
 
-    # Generate CLAHE (Set clipLimit 3.0, tileGridSize 8x8)
-    clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+    # # Generate CLAHE (Set clipLimit 3.0, tileGridSize 8x8)
+    # clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
 
-    # Generate enhanced image by applying CLAHE to the L channel
-    l_clahe_enhanced = clahe.apply(l)
-    ipr_enhanced_lab = cv2.merge((l_clahe_enhanced, a, b)) # Merge enhanced L, a, b channels to get the enhanced LAB image
-    '''
+    # # Generate enhanced image by applying CLAHE to the L channel
+    # l_clahe_enhanced = clahe.apply(l)
+    # ipr_enhanced_lab = cv2.merge((l_clahe_enhanced, a, b)) # Merge enhanced L, a, b channels to get the enhanced LAB image
+    # '''
 
     # Generate binary mask by enhanced image
     # mask_enhanced = cv2.inRange(ipr_enhanced_lab, green_lower, green_upper)
@@ -63,6 +73,7 @@ while True:
 
     # final_img = ipr_enhanced_rgb.copy() # final image
     final_not_enhanced_img = ipr_not_enhanced_rgb.copy()
+    final_img = final_not_enhanced_img.copy() 
     contours, _ = cv2.findContours(
         final_ipr_mask,        # binary mask
         cv2.RETR_EXTERNAL,       # detect only the outer edges of the object with holes
