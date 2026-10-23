@@ -165,6 +165,26 @@ python handCalculator.py
 | `processNoiseCov` | 1e-2 (위치), 5e-2 (속도) | 클수록 측정값 변화에 빠르게 반응 |
 | `measurementNoiseCov` | 1.0 | 클수록 측정값을 덜 신뢰 |
 
+## 과제 요구 기술 활용 정리
+
+| 요구 기술 | 사용한 방법 | 사용 위치 |
+|---|---|---|
+| 이미지 조정 | 좌우 반전(Windows, 거울 모드) / 상하 반전(Jetson), Jetson은 카메라 해상도를 640x480으로 지정 | `cv2.flip`, GStreamer 파이프라인 |
+| 색공간 변환 | BGR → RGB (MediaPipe 입력), BGR → LAB (포스트잇 색 분리) | `cv2.cvtColor` |
+| Image Enhancement | LAB의 L 채널에 CLAHE를 적용해 조명 변화에 대응 | `cv2.createCLAHE` |
+| 필터링 | 가우시안 블러로 노이즈 완화, 모폴로지 Opening(3회)으로 마스크의 잡음 제거 | `cv2.GaussianBlur`, `cv2.morphologyEx` |
+| Color Segmentation | LAB 범위로 노란 포스트잇만 분리 | `cv2.inRange` |
+| Contour Detection | 마스크에서 가장 큰 contour를 포스트잇으로 선택하고 최소 외접원으로 중심 계산 | `cv2.findContours`, `cv2.contourArea`, `cv2.minEnclosingCircle` |
+| 객체 추적 | Kalman Filter로 포스트잇 위치를 추적하고, 가려져도 예측으로 위치 유지 | `cv2.KalmanFilter` |
+| 신체 인식 | MediaPipe HandLandmarker로 양손 landmark를 검출하고 손가락 관절 각도로 펴짐/접힘 판별 | `HandLandmarker`, `calculate_angle` |
+
+### 신체와 객체의 관계 표현
+
+- **손 → 수식**: 손가락 모양(숫자/연산자)이 수식 문자열로 입력됩니다.
+- **포스트잇 → 결과 표시**: 포스트잇이 화면에 나타나면 입력이 끝난 것으로 보고 결과 모드로 전환합니다. 계산 결과는 포스트잇 위에 텍스트로 overlay 됩니다.
+- **모드 전환**: 포스트잇이 사라지면 수식이 초기화되고 다시 손 입력을 받습니다. 결과 모드에서는 손가락 입력을 무시합니다.
+- **가림 처리**: 손이 포스트잇을 가려도 Kalman 예측으로 글자가 유지됩니다.
+
 ## 참고 사항
 
 - 포스트잇 색상 범위(LAB)는 조명과 포스트잇 종류에 따라 조정이 필요할 수 있습니다. 실행 중 `Postit Mask` 창에서 검출 결과를 확인할 수 있습니다.
