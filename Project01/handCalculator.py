@@ -193,7 +193,7 @@ while True:
     if platform.system() == "Windows": # Windows 노트북 용
         frame = cv2.flip(frame, 1) # 작성자의 환경(Windows)은 1로 처리 flip해줘야 화면이 거울모드가 됨.
     else: # NVIDIA Jetson Nano 용
-        frame = cv2.flip(frame, 0) # NVIDIA Jetson Nano
+        frame = cv2.flip(frame, 1) # NVIDIA Jetson Nano
     
     rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) # opencv는 BGR, mediapipe는 RGB이므로 색공간 변환 필요, rgb와 frame의 크기는 같음.
 
