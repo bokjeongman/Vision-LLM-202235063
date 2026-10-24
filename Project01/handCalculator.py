@@ -14,14 +14,26 @@ if platform.system() == "Windows": # Windows 노트북 용
     cap = cv2.VideoCapture(0) 
 else: # NVIDIA Jetson Nano에 쓰이는 pipeline
     pipeline = (
-    "v4l2src device=/dev/video0 ! "
-    "video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! "
-    "videoconvert ! video/x-raw,format=BGR ! "
-    "queue leaky=downstream max-size-buffers=1 "
-    "max-size-bytes=0 max-size-time=0 ! "
+    "nvarguscamerasrc sensor-id=0 ! "
+    "video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! "
+    "nvvidconv ! "
+    "video/x-raw, format=BGRx ! "
+    "videoconvert ! "
+    "video/x-raw, format=BGR ! "
+    "queue leaky=downstream max-size-buffers=1 ! "
     "appsink drop=true max-buffers=1 sync=false"
     )
     cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER) 
+# else: # NVIDIA Jetson Nano에 쓰이는 pipeline
+#     pipeline = (
+#     "v4l2src device=/dev/video0 ! "
+#     "video/x-raw,format=YUY2,width=640,height=480,framerate=30/1 ! "
+#     "videoconvert ! video/x-raw,format=BGR ! "
+#     "queue leaky=downstream max-size-buffers=1 "
+#     "max-size-bytes=0 max-size-time=0 ! "
+#     "appsink drop=true max-buffers=1 sync=false"
+#     )
+#     cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER) 
 
 
 # 중간 점 기준으로 각도 계산하는 함수: 
