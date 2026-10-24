@@ -14,6 +14,7 @@ if platform.system() == "Windows": # Windows 노트북 용
     cap = cv2.VideoCapture(0) 
 else: # NVIDIA Jetson Nano에 쓰이는 pipeline
     pipeline = (
+<<<<<<< HEAD
     "nvarguscamerasrc sensor-id=0 ! "
     "video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! "
     "nvvidconv ! "
@@ -22,6 +23,16 @@ else: # NVIDIA Jetson Nano에 쓰이는 pipeline
     "video/x-raw, format=BGR ! "
     "queue leaky=downstream max-size-buffers=1 ! "
     "appsink drop=true max-buffers=1 sync=false"
+=======
+        "nvarguscamerasrc sensor-id=0 ! " 
+        "video/x-raw(memory:NVMM), width=1280, height=720, framerate=30/1 ! "
+        "nvvidconv ! "
+        "video/x-raw, format=BGRx ! "
+        "videoconvert ! "
+        "video/x-raw, format=BGR ! "
+        "queue leaky=downstream max-size-buffers=1 ! "
+        "appsink drop=true max-buffers=1 sync=false"
+>>>>>>> 0e7ba17 (change the pipeline for instructor's cam)
     )
     cap = cv2.VideoCapture(pipeline, cv2.CAP_GSTREAMER) 
 # else: # NVIDIA Jetson Nano에 쓰이는 pipeline
