@@ -29,9 +29,9 @@
 │   └── 261025_NMS.py
 └── src/
     ├── images/      # seagull.jpg, two_apples1.png, two_apples2.png, two_apples3.png
-    ├── datasets/    # MNIST, CIFAR-10
+    ├── datasets/    # MNIST
     └── models/
-        └── MNIST/   # 261025_DL_MNIST.py 모델 저장 위치
+        └── MNIST/   
 ```
 
 ## 의존성
