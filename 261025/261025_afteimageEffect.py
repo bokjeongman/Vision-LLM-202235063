@@ -2,7 +2,6 @@ import numpy as np
 import cupy as cp
 import time
 import cv2
-import matplotlib.pyplot as plt
 
 IMAGE_PATH = "src/images/seagull.jpg"
 
@@ -16,13 +15,13 @@ img_gray = cv2.imread(IMAGE_PATH, cv2.IMREAD_GRAYSCALE)
 if img_gray is None:
     raise FileNotFoundError(f"이미지를 읽을 수 없습니다: {IMAGE_PATH}")
 
-img_gray = cv2.resize(
+img_gray = cv2.resize( # 이미지 크기 조정
     img_gray,
     (TARGET_WIDTH, TARGET_HEIGHT),
     interpolation=cv2.INTER_AREA
 )
 
-input_np = img_gray.astype(np.float32) / 255.0
+input_np = img_gray.astype(np.float32) / 255.0 # 이미지 픽셀 값을 0~1 범위로 정규화
 
 # TODO: NumPy를 사용하여 잔상 효과 함수 정의
 
@@ -37,16 +36,16 @@ def motion_trail_np(image, weights):
     output = np.zeros((TARGET_HEIGHT, TARGET_WIDTH), dtype=np.float32)
     pixel_idx = 0
 
-    for output_y in output:
-        for output_x in output_y:
+    for output_y in output: # output_y는 출력 배열의 각 행을 나타냄
+        for output_x in output_y: # output_x는 출력 배열의 각 열을 나타냄
 
-            for shift in range(TRAIL_LENGTH):
+            for shift in range(TRAIL_LENGTH): # shift는 잔상 효과를 적용할 픽셀의 이동 거리
                 # TODO: x값 shift
-                y, x = divmod(pixel_idx, TARGET_WIDTH)
+                y, x = divmod(pixel_idx, TARGET_WIDTH) # divmod를 사용하여 pixel_idx를 y, x 좌표로 변환
                 input_x = x - shift
                 # TODO: shift한 픽셀을 누적
                 if input_x >= 0:
-                  output[y, x] += image[y, input_x] * weights[shift]
+                  output[y, x] += image[y, input_x] * weights[shift] # 잔상 효과를 적용한 픽셀 값을 출력 배열에 누적
                 # TODO: 출력 배열에 누적 픽셀 저장
                 if shift == TRAIL_LENGTH - 1:
                   pixel_idx += 1
@@ -69,12 +68,12 @@ def motion_trail_cp(image, weights):
 
     for shift in range(TRAIL_LENGTH):
         # TODO: 배열 slicing
-        input_region = image[:, :width - shift]
-        output_region = output[:, shift:]
+        input_region = image[:, :width - shift] # 잔상 효과를 적용할 입력 이미지의 영역을 선택
+        output_region = output[:, shift:] # 잔상 효과를 적용할 출력 이미지의 영역을 선택
 
         # TODO: GPU가 병렬 연산할 output_region 계산 코드
-        if shift < len(weights):
-          output_region += input_region * weights[shift]
+        if shift < len(weights): # weights 배열의 길이를 초과하지 않도록 조건 추가
+          output_region += input_region * weights[shift] # 잔상 효과를 적용한 픽셀 값을 출력 배열에 누적
     return output
 
 # 이동 거리가 멀어질수록 가중치를 작게 설정
@@ -88,27 +87,27 @@ weights_np = np.linspace(
 # 전체 가중치의 합을 1로 정규화
 weights_np /= np.sum(weights_np)
 
-cpu_start = time.perf_counter()
+cpu_start = time.perf_counter() # CPU에서 잔상 효과를 적용하는 시간 측정 시작
 
 output_np = motion_trail_np(
     image=input_np,
     weights=weights_np
 )
 
-cpu_end = time.perf_counter()
+cpu_end = time.perf_counter() # CPU에서 잔상 효과를 적용하는 시간 측정 종료
 
 cpu_time = cpu_end - cpu_start
 
 # TODO: NumPy 배열을 CuPy 배열로 변환
 
-upload_start = time.perf_counter()
+upload_start = time.perf_counter() # CPU에서 GPU로 데이터를 업로드하는 시간 측정 시작
 
 input_cp = cp.asarray(input_np)
 weights_cp = cp.asarray(weights_np)
 
-cp.cuda.Stream.null.synchronize()
+cp.cuda.Stream.null.synchronize() # GPU에서 모든 연산이 완료될 때까지 기다림
 
-upload_end = time.perf_counter()
+upload_end = time.perf_counter() # CPU에서 GPU로 데이터를 업로드하는 시간 측정 종료
 
 upload_time = upload_end - upload_start
 
@@ -120,20 +119,19 @@ _ = motion_trail_cp(
     weights=warmup_weights
 )
 
-cp.cuda.Stream.null.synchronize()
 
 cp.cuda.Stream.null.synchronize()
 
-gpu_start = time.perf_counter()
+gpu_start = time.perf_counter() # GPU에서 잔상 효과를 적용하는 시간 측정 시작
 
 output_cp = motion_trail_cp(
     image=input_cp,
     weights=weights_cp
 )
 
-cp.cuda.Stream.null.synchronize()
+cp.cuda.Stream.null.synchronize() # GPU에서 모든 연산이 완료될 때까지 기다림
 
-gpu_end = time.perf_counter()
+gpu_end = time.perf_counter() # GPU에서 잔상 효과를 적용하는 시간 측정 종료
 
 gpu_time = gpu_end - gpu_start
 

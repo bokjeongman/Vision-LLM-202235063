@@ -34,34 +34,34 @@ def convolution2d_cp(image, kernel, bias=0.0, stride=1, padding=0):
     각 위치에 해당하는 출력 배열 전체 연산은 GPU에서 처리한다.
     """
 
-    if padding > 0:
+    if padding > 0: # 이미지에 패딩 적용
         image = cp.pad(image, padding, mode="constant")
 
-    image_h, image_w = image.shape
+    image_h, image_w = image.shape 
     kernel_h, kernel_w = kernel.shape
 
-    output_h = (image_h - kernel_h) // stride + 1
-    output_w = (image_w - kernel_w) // stride + 1
+    output_h = (image_h - kernel_h) // stride + 1 # 출력 배열의 높이 계산
+    output_w = (image_w - kernel_w) // stride + 1 # 출력 배열의 너비 계산
 
     output = cp.zeros((output_h, output_w), dtype=cp.float32)
 
-    for kernel_y in range(kernel_h):
-        for kernel_x in range(kernel_w):
+    for kernel_y in range(kernel_h): # 커널의 y 좌표 반복
+        for kernel_x in range(kernel_w): # 커널의 x 좌표 반복
             input_region = image[
                 kernel_y:kernel_y + stride * output_h:stride,
                 kernel_x:kernel_x + stride * output_w:stride
             ]
 
-            output += input_region * kernel[kernel_y, kernel_x]
+            output += input_region * kernel[kernel_y, kernel_x] # 각 위치에 해당하는 출력 배열 전체 연산을 GPU에서 처리
 
-    output += bias
+    output += bias # bias를 출력 배열에 추가
 
     return output
 
 # TODO: 기존에 정의한 convolution2d 함수를 사용하여 convolution을 CPU로 처리
 # TODO: 변수 재사용 가능
 
-def convolution2d(image, kernel, bias=0.0, stride=1, padding=0):
+def convolution2d(image, kernel, bias=0.0, stride=1, padding=0): # NumPy를 이용한 2차원 convolution
     if padding > 0:
         image = np.pad(image, padding, mode="constant")
 
@@ -73,10 +73,10 @@ def convolution2d(image, kernel, bias=0.0, stride=1, padding=0):
 
     output = np.zeros((output_h, output_w), dtype=np.float32)
 
-    for output_y in range(output_h):
+    for output_y in range(output_h): # 출력 배열의 y, x 좌표 반복
         for output_x in range(output_w):
-            input_y = output_y * stride
-            input_x = output_x * stride
+            input_y = output_y * stride # 출력 배열의 y 좌표에 해당하는 입력 배열의 y, x 좌표 계산
+            input_x = output_x * stride 
 
             region = image[input_y:input_y + kernel_h, input_x:input_x + kernel_w]
             output[output_y, output_x] = np.sum(region * kernel) + bias
@@ -99,12 +99,12 @@ kernel_dy_np = np.array([
 ], dtype=np.float32)
 
 
-cpu_start = time.perf_counter()
+cpu_start = time.perf_counter() # CPU에서 convolution을 적용하는 시간 측정 시작
 
-output_dx_np = convolution2d(image=input_np, kernel=kernel_dx_np, padding=1)
-output_dy_np = convolution2d(image=input_np, kernel=kernel_dy_np, padding=1)
+output_dx_np = convolution2d(image=input_np, kernel=kernel_dx_np, padding=1) # x 방향 미분
+output_dy_np = convolution2d(image=input_np, kernel=kernel_dy_np, padding=1) # y 방향 미분
 
-cpu_end = time.perf_counter()
+cpu_end = time.perf_counter() # CPU에서 convolution을 적용하는 시간 측정 종료
 
 cpu_time = cpu_end - cpu_start
 
@@ -115,44 +115,44 @@ relu_dy_np = np.maximum(output_dy_np, 0)
 # TODO: 변수 재사용 가능
 
 # 1. NumPy 배열을 CuPy 배열로 변환
-upload_start = time.perf_counter()
+upload_start = time.perf_counter() # CPU에서 GPU로 데이터를 업로드하는 시간 측정 시작
 
 input_cp = cp.asarray(input_np)
 kernel_dx_cp = cp.asarray(kernel_dx_np)
 kernel_dy_cp = cp.asarray(kernel_dy_np)
 
-cp.cuda.Stream.null.synchronize()
+cp.cuda.Stream.null.synchronize() # GPU에서 모든 연산이 완료될 때까지 기다림
 
-upload_end = time.perf_counter()
+upload_end = time.perf_counter() # CPU에서 GPU로 데이터를 업로드하는 시간 측정 종료
 upload_time = upload_end - upload_start
 
 # 2. 워밍업
 warmup_image = cp.zeros((64, 64), dtype=cp.float32)
 
-_ = convolution2d_cp(image=warmup_image, kernel=kernel_dx_cp, padding=1)
+_ = convolution2d_cp(image=warmup_image, kernel=kernel_dx_cp, padding=1) # 워밍업을 위해 GPU에서 convolution을 수행
 
 cp.cuda.Stream.null.synchronize()
 
 # 3. GPU 처리
 cp.cuda.Stream.null.synchronize()
 
-gpu_start = time.perf_counter()
+gpu_start = time.perf_counter() # GPU에서 convolution을 적용하는 시간 측정 시작
 
 output_dx_cp = convolution2d_cp(image=input_cp, kernel=kernel_dx_cp, padding=1)
 output_dy_cp = convolution2d_cp(image=input_cp, kernel=kernel_dy_cp, padding=1)
 
-cp.cuda.Stream.null.synchronize()
+cp.cuda.Stream.null.synchronize() # GPU에서 모든 연산이 완료될 때까지 기다림
 
-gpu_end = time.perf_counter()
+gpu_end = time.perf_counter() # GPU에서 convolution을 적용하는 시간 측정 종료
 gpu_time = gpu_end - gpu_start
 
 # 4. ReLU 적용 후 CPU 메모리로 복사
-download_start = time.perf_counter()
+download_start = time.perf_counter() # GPU에서 CPU로 데이터를 다운로드하는 시간 측정 시작
 
 relu_dx_cp_np = cp.asnumpy(cp.maximum(output_dx_cp, 0))
 relu_dy_cp_np = cp.asnumpy(cp.maximum(output_dy_cp, 0))
 
-download_end = time.perf_counter()
+download_end = time.perf_counter() # GPU에서 CPU로 데이터를 다운로드하는 시간 측정 종료
 download_time = download_end - download_start
 
 # TODO: CPU/GPU 결과 비교 및 출력
@@ -193,3 +193,5 @@ plt.subplot(2,3,6), plt.imshow(relu_dy_cp_np, cmap="gray"), plt.title("Horizonta
 
 for ax in plt.gcf().axes:
     ax.axis("off")
+
+plt.show()

@@ -484,18 +484,13 @@ plt.show()
 # TODO: plt.plot(x축_데이터, y축_데이터, marker="o", label="데이터_이름")을 사용하여 그래프 생성
 plt.figure(figsize=(8,5))
 
-train_acc_percentage = []
-test_acc_percentage = []
+
 
 # TODO: train_accuracy_history 그래프 생성 (백분율)
 # TODO: test_accuracy_history 그래프 생성 (백분율)
 
-for epoch_idx in range(epochs):
-    train_acc_percentage.append(f"{train_accuracy_history[epoch_idx]*100:.2f}")
-    test_acc_percentage.append(f"{test_accuracy_history[epoch_idx]*100:.2f}")
-
-plt.plot(train_acc_percentage)
-plt.plot(test_acc_percentage)
+plt.plot(np.array(train_accuracy_history) * 100)
+plt.plot(np.array(test_accuracy_history) * 100)
 
 plt.xlabel("Epoch")
 plt.ylabel("Accuracy (%)")
@@ -545,6 +540,21 @@ layer_names = [
     "relu2",
     "pool2"
 ]
+
+# 6개 Layer별 대표 Feature Map 4개씩 비교
+plt.figure(figsize=(10, 14))
+
+for row, name in enumerate(layer_names):
+    feature_maps = features[name][0].cpu()  # [Channel, H, W]
+
+    for col in range(4):
+        plt.subplot(len(layer_names), 4, row * 4 + col + 1)
+        plt.imshow(feature_maps[col], cmap="viridis")
+        plt.title(f"{name} - Ch {col}")
+        plt.axis("off")
+
+plt.tight_layout()
+plt.show()
 
 torch.save(
     model.state_dict(),
