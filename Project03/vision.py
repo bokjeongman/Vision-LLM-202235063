@@ -19,7 +19,8 @@ TEMP_JSON_PATH = "src/json/vision_data_tmp.json"
 
 CENTER_RATIO = 0.5          # 화면 중앙 영역 비율
 HOLD_FRAMES = 15            # 이벤트 판단 유지 프레임 수
- 
+
+
 # 화면 중앙에 있는 물건의 클래스 이름 반환
 def check_event(objects, width, height):
     # 화면 중앙 영역 좌표
@@ -27,30 +28,40 @@ def check_event(objects, width, height):
     center_y1 = height * (1 - CENTER_RATIO) / 2
     center_x2 = width - center_x1
     center_y2 = height - center_y1
- 
+
     candidates = []
- 
+
     for obj in objects:
         # 사람은 제외
         if obj["class"] == "person":
             continue
- 
+
         # BBox 중심점 계산
         bbox = obj["bbox"]
         cx = (bbox["x1"] + bbox["x2"]) / 2
         cy = (bbox["y1"] + bbox["y2"]) / 2
- 
+
         # 중심점이 중앙 영역 안에 있으면 후보로 추가
         if center_x1 <= cx <= center_x2 and center_y1 <= cy <= center_y2:
             candidates.append(obj)
- 
+
     if len(candidates) == 0:
         return None
- 
+
     # 후보 중 BBox 면적이 가장 큰 물건 선택
-    target = max(candidates, key=lambda obj: (obj["bbox"]["x2"] - obj["bbox"]["x1"]) * (obj["bbox"]["y2"] - obj["bbox"]["y1"]))
- 
+    target = None
+    max_area = 0
+
+    for obj in candidates:
+        bbox = obj["bbox"]
+        area = (bbox["x2"] - bbox["x1"]) * (bbox["y2"] - bbox["y1"])
+
+        if area > max_area:
+            max_area = area
+            target = obj
+
     return target["class"]
+
 
 yolo = YOLO(YOLO_MODEL_PATH)
 
@@ -72,7 +83,7 @@ if not cap.isOpened():
 
 
 print("q : 종료")
-print("l : 현재 YOLO 탐지 결과를 Gemma에게 전달")
+print("l : 화면 중앙 물건으로 강제 이벤트")
 
 # 중앙 물건과 유지 프레임 수 저장
 hold_class = None
@@ -129,17 +140,17 @@ while True:
 
     # 4. 화면 중앙 물건이 HOLD_FRAMES 동안 유지되는지 확인
     center_class = check_event(objects, width, height)
- 
+
     # 같은 물건이면 프레임 수 증가, 바뀌면 다시 측정
     if center_class == hold_class:
         hold_count = hold_count + 1
     else:
         hold_class = center_class
         hold_count = 1
- 
+
     # HOLD_FRAMES 도달 또는 l 키 입력 시 이벤트 발생 (중앙 물건이 없으면 제외)
     event = False
- 
+
     if hold_count == HOLD_FRAMES:
         event = True
     if key == ord("l"):
@@ -159,10 +170,10 @@ while True:
     if event:
         with open(TEMP_JSON_PATH, "w", encoding="utf-8") as file:
             json.dump(vision_dict, file, ensure_ascii=False, indent=4)
- 
+
         # 6. 임시 파일 작성 완료 후 실제 파일로 교체
         os.replace(TEMP_JSON_PATH, JSON_PATH)
- 
+
         print(f"\n[이벤트 감지] {center_class}")
 
 

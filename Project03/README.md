@@ -52,7 +52,7 @@ deactivate
 ## 폴더 구조
 
 ```
-FinalProject/
+Project03/
 ├── vision.py
 ├── llm.py
 ├── speech.py
