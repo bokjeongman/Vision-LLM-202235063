@@ -1,0 +1,76 @@
+{
+    "image_width": 942,
+    "image_height": 488,
+    "objects": [
+        {
+            "class": "car",
+            "confidence": 0.931,
+            "bbox": {
+                "x1": 129,
+                "y1": 290,
+                "x2": 348,
+                "y2": 449
+            }
+        },
+        {
+            "class": "car",
+            "confidence": 0.907,
+            "bbox": {
+                "x1": 524,
+                "y1": 298,
+                "x2": 635,
+                "y2": 378
+            }
+        },
+        {
+            "class": "person",
+            "confidence": 0.793,
+            "bbox": {
+                "x1": 832,
+                "y1": 274,
+                "x2": 876,
+                "y2": 403
+            }
+        },
+        {
+            "class": "car",
+            "confidence": 0.434,
+            "bbox": {
+                "x1": 415,
+                "y1": 291,
+                "x2": 433,
+                "y2": 306
+            }
+        },
+        {
+            "class": "car",
+            "confidence": 0.378,
+            "bbox": {
+                "x1": 431,
+                "y1": 292,
+                "x2": 446,
+                "y2": 305
+            }
+        },
+        {
+            "class": "potted plant",
+            "confidence": 0.278,
+            "bbox": {
+                "x1": 721,
+                "y1": 310,
+                "x2": 750,
+                "y2": 361
+            }
+        },
+        {
+            "class": "fire hydrant",
+            "confidence": 0.277,
+            "bbox": {
+                "x1": 721,
+                "y1": 312,
+                "x2": 749,
+                "y2": 361
+            }
+        }
+    ]
+}
