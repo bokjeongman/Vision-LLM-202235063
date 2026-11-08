@@ -1,0 +1,4 @@
+source /home/xorbkr/vision-llm/.venv/bin/activate
+
+python Project03/vision.py
+python Project03/llm.py
